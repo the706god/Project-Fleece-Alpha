@@ -1,0 +1,56 @@
+[
+  {
+    "id": "knowledge/technical_guidelines.md#technical-architecture-guidelines",
+    "title": "Technical Architecture Guidelines",
+    "file": "knowledge/technical_guidelines.md",
+    "level": 1,
+    "heading_path": "Technical Guidelines > Technical Architecture Guidelines",
+    "summary": "date: 2026-10-09 tags: architecture, crate-motor, engineering",
+    "tokens": 23
+  },
+  {
+    "id": "knowledge/technical_guidelines.md#crate-motor-design-principles",
+    "title": "Crate Motor Design Principles",
+    "file": "knowledge/technical_guidelines.md",
+    "level": 2,
+    "heading_path": "Technical Guidelines > Technical Architecture Guidelines > Crate Motor Design Principles",
+    "summary": "A crate motor is a drop-in component that requires zero external setup. The engine must be completely self-contained within its repo folder. Hardware detection ...",
+    "tokens": 37
+  },
+  {
+    "id": "knowledge/technical_guidelines.md#ingestion-protocol-specifications",
+    "title": "Ingestion Protocol Specifications",
+    "file": "knowledge/technical_guidelines.md",
+    "level": 2,
+    "heading_path": "Technical Guidelines > Technical Architecture Guidelines > Ingestion Protocol Specifications",
+    "summary": "The ingestion engine strictly adheres to three unbreakable protocols: 1. Anti-Parsing: Preserves raw markdown tables, syntax trees, and indentation. 2. Anti-Chu...",
+    "tokens": 74
+  },
+  {
+    "id": "knowledge/technical_guidelines.md#context-budget-limits",
+    "title": "Context Budget Limits",
+    "file": "knowledge/technical_guidelines.md",
+    "level": 2,
+    "heading_path": "Technical Guidelines > Technical Architecture Guidelines > Context Budget Limits",
+    "summary": "The maximum working context is set to 16,384 tokens. When memory usage exceeds 85% of capacity, the engine triggers automated offloading to the secondary markdo...",
+    "tokens": 55
+  },
+  {
+    "id": "knowledge/task_1.md#task_1",
+    "title": "Task_1",
+    "file": "knowledge/task_1.md",
+    "level": 1,
+    "heading_path": "Task 1 > Task_1",
+    "summary": "date: 2026-10-09T19:50:44.417091 tags: task, active_objective  ---  Test Task",
+    "tokens": 41
+  },
+  {
+    "id": "knowledge/active_task.md#active_task",
+    "title": "Active_Task",
+    "file": "knowledge/active_task.md",
+    "level": 1,
+    "heading_path": "Active Task > Active_Task",
+    "summary": "date: 2026-10-09T22:27:05.067607 tags: task, active_objective  ---  System Health",
+    "tokens": 41
+  }
+]
