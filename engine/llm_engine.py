@@ -21,6 +21,16 @@ class FleeceEngine:
         raw_model_path = self.config.get("model_path", "models/model.gguf")
         self.model_path = os.path.normpath(os.path.join(self.base_dir, raw_model_path))
         
+        # Handle broken symlink or missing model file via automated download
+        is_broken_link = os.path.islink(self.model_path) and not os.path.exists(self.model_path)
+        is_missing_or_empty = not os.path.exists(self.model_path) or os.path.getsize(self.model_path) < 1_000_000
+
+        if is_broken_link or is_missing_or_empty:
+            logger.info("Model file not found locally. Initiating automated first-run setup...")
+            sys.path.insert(0, self.base_dir)
+            from setup_models import download_model
+            self.model_path = download_model()
+
         if not os.path.exists(self.model_path):
             raise FileNotFoundError(f"Model file not found at: {self.model_path}")
 

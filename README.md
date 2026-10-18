@@ -28,7 +28,15 @@ Project: Fleece Alpha is a pre-packaged, self-contained Small Language Model bui
 
 ## 🚀 Quickstart
 
-### 1. Run via Turnkey Launcher
+### 1. Model Setup (Automated on First Run)
+When you launch the engine for the first time, it automatically detects and downloads the verified `Qwen 2.5 Coder 3B Instruct` weights directly into `models/model.gguf`.
+
+You can also pre-download the weights manually at any time:
+```bash
+python setup_models.py
+```
+
+### 2. Run via Turnkey Launcher
 ```bash
 ./run.sh
 ```
