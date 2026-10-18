@@ -180,4 +180,5 @@ class StateGraphMemoryEngine:
             record += f"**Cache Hit:** {state.fast_path_source}\n"
         elif state.matched_sections:
             record += f"**Cited Sections:** {', '.join([s['id'] for s in state.matched_sections])}\n"
+        self.markdown.archive_record(record)
         state.trace("ARCHIVE", "State recorded to secondary markdown ledger.")

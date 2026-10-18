@@ -1,64 +1,67 @@
 # Project: Fleece Alpha 🐑
-> **The 'Crate Motor' SLM Build (Text Edition)**  
-> **Core Model:** Qwen 2.5 Coder 3B Instruct (`Q4_K_M` GGUF)
 
-Project: Fleece Alpha is a pre-packaged, self-contained Small Language Model build designed to act as a **crate motor** for AI applications. Drop it into your workflow, assign your tasks, and run it locally without fighting environment configurations or context limits.
+**The "Crate Motor" SLM build (Text Edition)** — a small, self-contained AI model you run **completely offline, on your own machine**. No internet needed after the first setup.
 
----
-
-## ⚡ What's in the Crate
-
-1. **GGUF SLM Core (`engine/llm_engine.py`)**
-   - Pre-configured for `qwen2.5-coder-3b-instruct-q4_k_m.gguf` (located in `models/model.gguf`).
-   - Automated hardware acceleration: Apple Silicon (Metal), NVIDIA (CUDA), or multi-threaded CPU fallback.
-2. **Two-Tier Living Memory Architecture (`memory/`)**
-   - **Tier 1 — Living Dossier (`DOSSIER.md`):** Instant fast-path cache (~150 tokens) modeled after legacy markdown memory. Frequently requested facts and answers are cached here and served immediately without document rescanning.
-   - **Continuous Auto-Updating:** Whenever a deep query resolves information from documents, the Living Dossier is automatically updated with the new Q&A pair and exact file/anchor citations.
-   - **Tier 2 — Vectorless PageIndex (`PAGE_INDEX.json`):** Hierarchical Table of Contents tree navigation over markdown knowledge files in `storage/markdown/knowledge/`. Zero vector databases, zero embeddings, zero chunking.
-3. **Context Limitation Safeguard (`memory/context_budget.py`)**
-   - Dynamic budget allocation prevents "out-of-context" model crashes.
-   - Preserves immutable System Anchors and Task Objectives while maintaining a rolling context window.
-   - Automatically compacts conversational dialogue first to preserve ingested document text unbroken.
-4. **Ingestion Protocols (`ingestion/protocols.py`)**
-   - **Anti-Parsing:** Ingests raw data without destructive regex stripping or breaking whitespace/indentation.
-   - **Anti-Chunking:** AST and markdown-aware boundary splits. Never slices code blocks, functions, or tables in half.
-   - **Anti-Truncating:** Guarantees input boundaries are preserved safely without mid-sentence clipping.
+**Core model:** Qwen 2.5 Coder 3B Instruct (`Q4_K_M` GGUF)
 
 ---
 
-## 🚀 Quickstart
+## What "local agent" means here
 
-### 1. Model Setup (Automated on First Run)
-When you launch the engine for the first time, it automatically detects and downloads the verified `Qwen 2.5 Coder 3B Instruct` weights directly into `models/model.gguf`.
+Fleece Alpha is a **tool for offloading work from frontier (cloud) agents so it can live locally**. You give it a task, it stays in memory, serves answers, and keeps its own notes — all without calling anything to a server. It is designed to run on your machine with nothing installed except a Python environment and the model weights.
 
-You can also pre-download the weights manually at any time:
+- **No internet required.** Everything runs locally.
+- **No cloud API keys.** No `OPENAI_API_KEY`, no `ANTHROPIC_API_KEY`, no external calls.
+- **No vector databases, embeddings, or chunking.** Retrieval is by direct file search over plain markdown.
+- **Self-contained.** Everything the project needs sits in one folder.
+
+---
+
+## What's inside the crate
+
+1. **GGUF SLM core (`engine/llm_engine.py`)** — the local model, pre-configured for Apple Silicon (Metal), NVIDIA (CUDA), or CPU fallback.
+2. **Two-tier living memory (`memory/`)**
+   - **Tier 1 — Living Dossier (`DOSSIER.md`):** a fast-path cache. Frequently asked questions and answers are served instantly without rescanning documents.
+   - **Tier 2 — Vectorless PageIndex (`PAGE_INDEX.json`):** a plain-table of contents tree over the markdown knowledge files. Zero embeddings, zero chunking.
+3. **Context safeguard (`memory/context_budget.py`)** — tracks token usage so the model never runs out of context. It offloads old conversation first and keeps ingested documents intact.
+4. **Ingestion protocols (`ingestion/protocols.py`)** — three guarantees:
+   - **Anti-Parsing:** raw text is never rewritten or reformatted.
+   - **Anti-Chunking:** documents are treated as complete wholes.
+   - **Anti-Truncating:** content is never cut off mid-sentence.
+
+---
+
+## Quickstart
+
+### 1. Install the model (once)
+
 ```bash
+python -m pip install -r requirements.txt
 python setup_models.py
 ```
 
-### 2. Run via Turnkey Launcher
+The first run downloads the model weights automatically if they are not present.
+
+### 2. Run
+
 ```bash
 ./run.sh
 ```
 
-### 2. Interactive CLI Commands
-Once inside the interactive shell, you can use built-in management commands:
-- `!dossier` — View the live contents of `DOSSIER.md`.
-- `!toc` — Inspect the vectorless Table of Contents knowledge index.
-- `!budget` — Check active context token utilization.
-- `!reset` — Clear conversation turns while keeping model and memory intact.
+### 3. Use inside the interactive shell
 
-### 3. Assign a Task Directly from CLI
-```bash
-./run.sh --task "Review python files for performance bottlenecks" --prompt "What should we look for first?"
-```
+- `!dossier` — view the living dossier.
+- `!toc` — view the table-of-contents index.
+- `!budget` — check context token usage.
+- `!reset` — clear conversation turns, keep the model and memory.
 
-### 4. Use as a Python Crate Motor
+### 4. Run as a Python crate motor
+
 ```python
 from fleece import FleeceCrateMotor
 
 motor = FleeceCrateMotor()
-motor.set_task("Act as a strict code auditor")
-response = motor.execute("Audit this SQL schema for anti-patterns")
+motor.set_task("Review python files for performance bottlenecks")
+response = motor.execute("What should we look for first?")
 print(response)
 ```
