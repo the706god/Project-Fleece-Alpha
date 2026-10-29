@@ -2,19 +2,22 @@
 """
 Project: Fleece Alpha - The 'Crate Motor' SLM Build (Text Edition)
 Model: Qwen 2.5 Coder 3B Instruct
-Equipped with:
-- Living Markdown Dossier (L1 Fast-Path Cache, consistently auto-updating)
-- Vectorless RAG (L2 PageIndex Tree Navigation)
-- Stateful Graph Memory Engine
+Equipped with Mimir OCR (3-Pass Progressive Optical Sieve + Vectorless Memory System):
+- Mimir 3-Pass Progressive Optical Sieve with Coordinate Delta-Masking (sieve_ocr.py)
+- Mimir Living Markdown Dossier (L1 Fast-Path Cache, consistently auto-updating)
+- Mimir Vectorless RAG (L2 PageIndex Tree Navigation)
+- Mimir Stateful Graph Memory Engine
 - Explicit Anti-Parsing, Anti-Chunking, Anti-Truncating Protocols
 - Secondary Legacy Markdown Memory Ledger
 """
 
 import os
 import argparse
+from pathlib import Path
 from typing import Optional, List
 
 from engine.llm_engine import FleeceEngine
+from engine.sieve_ocr import ProgressiveOpticalSieve, DocumentOCRResult
 from memory.context_budget import ContextBudgetManager
 from memory.markdown_store import LegacyMarkdownStore
 from memory.page_index import PageIndexEngine
@@ -22,25 +25,27 @@ from memory.dossier import LivingDossierEngine
 from memory.state_graph import StateGraphMemoryEngine
 from ingestion.protocols import IngestionProtocols
 
-SYSTEM_DIRECTIVE_ALPHA = """You are an AI engine powered by Project: Fleece Alpha.
+SYSTEM_DIRECTIVE_ALPHA = """You are an AI engine powered by Project: Fleece Alpha with the Mimir OCR & Vectorless Memory Stack.
 
-MANDATORY INGESTION & FIDELITY DIRECTIVES:
-1. ZERO-DESTRUCTION FIDELITY: Any and all information ingested must NEVER be parsed, chunked, or truncated. All ingested documents, code blocks, tables, records, and notes are treated as complete, unbroken wholes.
+MANDATORY MIMIR OCR INGESTION & FIDELITY DIRECTIVES:
+1. ZERO-DESTRUCTION FIDELITY: Any and all information ingested must NEVER be parsed, chunked, or truncated. All ingested documents, OCR blocks, code blocks, tables, records, and notes are treated as complete, unbroken wholes.
 2. HOLISTIC CONTEXT UTILIZATION: Evaluate ingested materials in their full context. Never guess, invent, or make assumptions based on partial snippets. If information is not in the ingested data, state that clearly.
-3. CITATION OF UNBROKEN SOURCES: When answering or referencing knowledge, cite the exact source file and section anchor provided by the PageIndex or Dossier memory system.
+3. CITATION OF UNBROKEN SOURCES: When answering or referencing knowledge, cite the exact source file, section anchor, and normalized [x0, y0, x1, y1] bounding-box coordinates provided by the Mimir OCR PageIndex or Dossier memory system.
 4. ABSOLUTE FORMAT INTEGRITY: Maintain exact indentation, code syntax, and tabular structures without destructive reformatting."""
+
 
 class FleeceCrateMotor:
     """
-    Plug-and-play AI Crate Motor.
+    Plug-and-play AI Crate Motor equipped with Mimir OCR.
     Encapsulates model inference, context limitation safeguards,
-    Two-Tier memory (L1 Living Dossier + L2 PageIndex), and stateful graph memory.
+    3-Pass Progressive Optical Sieve, and Mimir Two-Tier Vectorless Memory
+    (L1 Living Dossier + L2 PageIndex).
     """
 
     def __init__(self, config_path: str = "fleece_config.json"):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         resolved_config = os.path.join(base_dir, config_path)
-        
+
         self.engine = FleeceEngine(resolved_config)
         markdown_root = os.path.join(
             base_dir, self.engine.config.get("storage", {}).get("markdown_root", "storage/markdown")
@@ -48,6 +53,11 @@ class FleeceCrateMotor:
         self.markdown_store = LegacyMarkdownStore(markdown_root)
         self.page_index = PageIndexEngine(markdown_root, token_counter=self.engine.count_tokens)
         self.dossier = LivingDossierEngine(markdown_root)
+        self.mimir_ocr = ProgressiveOpticalSieve(
+            confidence_threshold=0.85,
+            raster_dpi=200,
+            crop_padding_px=12,
+        )
 
         mem_cfg = self.engine.config.get("memory", {})
         self.memory = ContextBudgetManager(
@@ -55,23 +65,23 @@ class FleeceCrateMotor:
             reserved_completion_tokens=mem_cfg.get("reserved_completion_tokens", 2048),
             system_anchor_tokens=mem_cfg.get("system_anchor_tokens", 1200),
             compaction_threshold=mem_cfg.get("memory_compaction_threshold", 0.85),
-            token_counter=self.engine.count_tokens
+            token_counter=self.engine.count_tokens,
         )
-        
+
         ingest_cfg = self.engine.config.get("ingestion", {})
         self.ingestion = IngestionProtocols(
             max_block_tokens=ingest_cfg.get("max_block_tokens", 8192),
-            token_counter=self.engine.count_tokens
+            token_counter=self.engine.count_tokens,
         )
 
-        # Two-Tier Graph Memory Machine
+        # Mimir Two-Tier Graph Memory Machine
         self.graph = StateGraphMemoryEngine(
             engine=self.engine,
             memory_budget=self.memory,
             markdown_store=self.markdown_store,
             page_index=self.page_index,
             ingestion_protocols=self.ingestion,
-            dossier=self.dossier
+            dossier=self.dossier,
         )
 
         # Baked-in immutable system anchor
@@ -84,32 +94,49 @@ class FleeceCrateMotor:
         self.markdown_store.store_knowledge(
             topic="active_task",
             content=sanitized,
-            tags=["task", "active_objective"]
+            tags=["task", "active_objective"],
         )
         self.page_index.rebuild_index()
 
     def store_knowledge(self, topic: str, content: str, tags: Optional[List[str]] = None) -> str:
-        """Store knowledge in markdown and automatically update PageIndex tree."""
+        """Store knowledge in markdown and automatically update Mimir PageIndex tree."""
         clean_content = self.ingestion.anti_parse(content)
         path = self.markdown_store.store_knowledge(topic, clean_content, tags)
         self.page_index.rebuild_index()
         return path
 
+    def ingest_document(self, file_path: str, topic: Optional[str] = None) -> DocumentOCRResult:
+        """
+        Run the Mimir OCR 3-Pass Progressive Optical Sieve with Coordinate Delta-Masking
+        on a PDF or image and store the unbroken coordinate-grounded result in Mimir Memory.
+        """
+        doc_res = self.mimir_ocr.process_document(file_path)
+        doc_topic = topic or f"mimir_ocr_{Path(file_path).stem}"
+        md_payload = self.mimir_ocr.format_as_mimir_markdown(doc_res)
+        self.store_knowledge(
+            topic=doc_topic,
+            content=md_payload,
+            tags=["mimir-ocr", "sieve-ocr", f"sha256:{doc_res.sha256_hash[:12]}"],
+        )
+        return doc_res
+
     def execute(self, user_prompt: str, stream: bool = True, verbose: bool = False) -> str:
-        """Run execution through the Two-Tier State Graph memory workflow."""
+        """Run execution through the Mimir Two-Tier State Graph memory workflow."""
         state = self.graph.run(user_prompt, stream=stream)
         if verbose:
-            print("\n--- [Memory State Graph Trace] ---")
+            print("\n--- [Mimir OCR & Memory State Graph Trace] ---")
             for t in state.execution_trace:
                 print(f"[{t['node']}] -> {t['details']}")
-            print("----------------------------------\n")
+            print("----------------------------------------------\n")
         return state.response
 
+
 def cli():
-    parser = argparse.ArgumentParser(description="Project: Fleece Alpha - SLM Crate Motor")
+    parser = argparse.ArgumentParser(description="Project: Fleece Alpha - SLM Crate Motor with Mimir OCR")
     parser.add_argument("--task", type=str, help="Initial task objective for the crate motor")
+    parser.add_argument("--ocr", type=str, help="Ingest a PDF or image file via the Mimir OCR 3-Pass Optical Sieve")
     parser.add_argument("--prompt", type=str, help="Single prompt execution mode")
-    parser.add_argument("--trace", action="store_true", help="Print execution trace from memory graph")
+    parser.add_argument("--trace", action="store_true", help="Print execution trace from Mimir memory graph")
     args = parser.parse_args()
 
     motor = FleeceCrateMotor()
@@ -117,17 +144,30 @@ def cli():
         motor.set_task(args.task)
         print(f"[Task Initialized]: {args.task}")
 
+    if args.ocr:
+        res = motor.ingest_document(args.ocr)
+        print(
+            f"[Mimir OCR Ingested]: {args.ocr} | Pages: {res.page_count} | "
+            f"Latency: {res.total_latency_ms:.2f} ms | Quarantined: {res.quarantined}"
+        )
+        if not args.prompt:
+            return
+
     if args.prompt:
         motor.execute(args.prompt, stream=True, verbose=args.trace)
         return
 
-    print("=" * 60)
-    print(" Project: Fleece Alpha - Ready (Two-Tier Memory Active)")
-    print(" L1 Living Dossier (Auto-Updating) + L2 Vectorless PageIndex")
-    print(" Type 'exit' or 'quit' to terminate.")
-    print(" Type '!toc' to display current PageIndex document map.")
-    print(" Type '!dossier' to view current Living Dossier cache.")
-    print("=" * 60)
+    print("=" * 66)
+    print(" Project: Fleece Alpha - Ready (Mimir OCR & Two-Tier Memory Active)")
+    print(" Mimir 3-Pass Optical Sieve + L1 Living Dossier + L2 PageIndex")
+    print(" Commands:")
+    print("   !ocr <path> -> Ingest PDF/image via Mimir 3-Pass Optical Sieve")
+    print("   !toc        -> Display current Mimir PageIndex document map")
+    print("   !dossier    -> View current Mimir Living Dossier cache")
+    print("   !budget     -> Check context token usage")
+    print("   !reset      -> Clear conversation turns, keep model and memory")
+    print("   exit / quit -> Terminate session")
+    print("=" * 66)
 
     while True:
         try:
@@ -145,10 +185,34 @@ def cli():
                     with open(motor.dossier.dossier_path, "r", encoding="utf-8") as f:
                         print("\n" + f.read() + "\n")
                 continue
+            if user_in == "!budget":
+                alloc = motor.memory.get_budget_allocation()
+                print("\n=== Context Budget Allocation ===")
+                for k, v in alloc.items():
+                    print(f"  {k}: {v}")
+                print("=================================\n")
+                continue
+            if user_in == "!reset":
+                motor.memory.working_history = []
+                motor.memory.active_summary = ""
+                print("\n[✓] Conversation turns cleared. Model and Mimir memory retained.\n")
+                continue
+            if user_in.startswith("!ocr "):
+                doc_path = user_in[5:].strip()
+                if not os.path.exists(doc_path):
+                    print(f"\n[!] File not found: {doc_path}\n")
+                else:
+                    res = motor.ingest_document(doc_path)
+                    print(
+                        f"\n[✓] Mimir OCR ingested '{doc_path}' ({res.page_count} page(s), "
+                        f"{res.total_latency_ms:.2f} ms, Quarantined={res.quarantined}).\n"
+                    )
+                continue
             motor.execute(user_in, stream=True, verbose=args.trace)
         except KeyboardInterrupt:
             print("\nSession aborted.")
             break
+
 
 if __name__ == "__main__":
     cli()
