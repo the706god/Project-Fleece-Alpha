@@ -18,6 +18,7 @@ from typing import Optional, List
 
 from engine.llm_engine import FleeceEngine
 from engine.sieve_ocr import ProgressiveOpticalSieve, DocumentOCRResult
+from engine.auditor import FleeceAgentAuditor, AuditReport
 from memory.context_budget import ContextBudgetManager
 from memory.markdown_store import LegacyMarkdownStore
 from memory.page_index import PageIndexEngine
@@ -58,6 +59,7 @@ class FleeceCrateMotor:
             raster_dpi=200,
             crop_padding_px=12,
         )
+        self.auditor = FleeceAgentAuditor()
 
         mem_cfg = self.engine.config.get("memory", {})
         self.memory = ContextBudgetManager(
@@ -120,6 +122,10 @@ class FleeceCrateMotor:
         )
         return doc_res
 
+    def audit_target(self, target_path: str) -> AuditReport:
+        """Audit a frontier agent, prompt, or skill for sovereign Fleece compatibility."""
+        return self.auditor.audit(target_path)
+
     def execute(self, user_prompt: str, stream: bool = True, verbose: bool = False) -> str:
         """Run execution through the Mimir Two-Tier State Graph memory workflow."""
         state = self.graph.run(user_prompt, stream=stream)
@@ -135,6 +141,7 @@ def cli():
     parser = argparse.ArgumentParser(description="Project: Fleece Alpha - SLM Crate Motor with Mimir OCR")
     parser.add_argument("--task", type=str, help="Initial task objective for the crate motor")
     parser.add_argument("--ocr", type=str, help="Ingest a PDF or image file via the Mimir OCR 3-Pass Optical Sieve")
+    parser.add_argument("--audit", type=str, help="Audit an agent or skill for sovereign Fleece compatibility")
     parser.add_argument("--prompt", type=str, help="Single prompt execution mode")
     parser.add_argument("--trace", action="store_true", help="Print execution trace from Mimir memory graph")
     args = parser.parse_args()
@@ -153,6 +160,12 @@ def cli():
         if not args.prompt:
             return
 
+    if args.audit:
+        report = motor.audit_target(args.audit)
+        from audit_agent import print_cli_report
+        print_cli_report(report)
+        return
+
     if args.prompt:
         motor.execute(args.prompt, stream=True, verbose=args.trace)
         return
@@ -161,6 +174,7 @@ def cli():
     print(" Project: Fleece Alpha - Ready (Mimir OCR & Two-Tier Memory Active)")
     print(" Mimir 3-Pass Optical Sieve + L1 Living Dossier + L2 PageIndex")
     print(" Commands:")
+    print("   !audit <path>-> Audit agent, prompt, or skill for Fleece compatibility")
     print("   !ocr <path> -> Ingest PDF/image via Mimir 3-Pass Optical Sieve")
     print("   !toc        -> Display current Mimir PageIndex document map")
     print("   !dossier    -> View current Mimir Living Dossier cache")
@@ -196,6 +210,15 @@ def cli():
                 motor.memory.working_history = []
                 motor.memory.active_summary = ""
                 print("\n[✓] Conversation turns cleared. Model and Mimir memory retained.\n")
+                continue
+            if user_in.startswith("!audit "):
+                target = user_in[7:].strip()
+                if not os.path.exists(target):
+                    print(f"\n[!] Path not found: {target}\n")
+                else:
+                    rep = motor.audit_target(target)
+                    from audit_agent import print_cli_report
+                    print_cli_report(rep)
                 continue
             if user_in.startswith("!ocr "):
                 doc_path = user_in[5:].strip()
