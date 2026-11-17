@@ -46,13 +46,13 @@ Most AI systems use complex "vector databases." They chop your files into little
 
 ---
 
-## How Fleece Reads: The Mimir 3-Pass Sieve
+## Bonus Feature: Mimir OCR
 
-Reading scanned paperwork on your own computer used to be slow or inaccurate. Fleece Alpha includes the Mimir 3-Pass Progressive Optical Sieve:
+Most local AI projects drop a raw model in your lap and expect you to figure out file ingestion yourself. We packaged **Mimir OCR**—the proprietary OCR stack from our upcoming **MimirOS** release—directly into Fleece Alpha so you get a real, multi-purpose local AI tool right out of the box.
 
-1. Pass 1 (Instant System Reading): Uses the built-in reading engine inside macOS or Windows. It reads clean, printed text in less than a tenth of a second per page with zero added memory.
-2. Pass 2 (Targeted Cleanup): The system checks its own work. If a stamp, slanted line, or messy table scores below 85% confidence, it crops only that tiny box and cleans it up using RapidOCR.
-3. Pass 3 (Chandra-OCR-2 Fallback): For stubborn cursive handwriting, stained paper, or degraded text, Fleece calls an in-process specialist vision reader (Chandra-OCR-2). This reader sleeps until needed, saving your computer's memory.
+How you use it is completely up to you. Whether your workflow touches medical, legal, financial, administrative, or everyday files, Mimir OCR is built to read whatever documents and forms you feed it with fidelity and accuracy—offline and under your control.
+
+Under the hood, it runs a 3-pass pipeline (OS-native reading first, RapidOCR on low-confidence boxes, and a sleeping Chandra-OCR-2 fallback only for tough scans) without chopping or cutting off your pages. Combined with Fleece Alpha's portable speed, you get real-world local AI and file reading on your machine anywhere in the world.
 
 ---
 
