@@ -16,23 +16,23 @@ MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
 
 MODEL_CONFIG = {
     "filename": "model.gguf",
-    "gdrive_id": "1NxPNXPTjhtuwxhBocrtGTB2osATMvezf",
-    "fallback_url": "https://huggingface.co/Qwen/Qwen2.5-Coder-3B-Instruct-GGUF/resolve/main/qwen2.5-coder-3b-instruct-q4_k_m.gguf",
-    "min_bytes": 1_500_000_000,
+    "gdrive_id": "1uFyr6_AGL8Du3mjqRiB-2y015T01muFd",
+    "fallback_url": "https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/resolve/main/Qwen3.5-4B-Q8_0.gguf",
+    "min_bytes": 3_500_000_000,
 }
 
 MIMIR_OCR_MODELS = [
     {
-        "filename": "MiniCPM-V-2.6-Q4_0.gguf",
-        "gdrive_id": "1iYN45Gfyeez0cY7vHAVUxtT6c2hr8j4A",
-        "fallback_url": "https://huggingface.co/openbmb/MiniCPM-V-2_6-gguf/resolve/main/ggml-model-Q4_0.gguf",
-        "min_bytes": 3_500_000_000,
+        "filename": "chandra-ocr-2.Q6_K.gguf",
+        "gdrive_id": "1jL_chandra_placeholder",
+        "fallback_url": "https://huggingface.co/unsloth/chandra-ocr-2-GGUF/resolve/main/chandra-ocr-2.Q6_K.gguf",
+        "min_bytes": 3_000_000_000,
     },
     {
-        "filename": "MiniCPM-V-2.6-mmproj-f16.gguf",
-        "gdrive_id": "1xV1iwTb7jtLR6n4pKZwdNAUKLiYge9sc",
-        "fallback_url": "https://huggingface.co/openbmb/MiniCPM-V-2_6-gguf/resolve/main/mmproj-model-f16.gguf",
-        "min_bytes": 800_000_000,
+        "filename": "chandra-ocr-2.mmproj-f16.gguf",
+        "gdrive_id": "1kL_chandra_mmproj_placeholder",
+        "fallback_url": "https://huggingface.co/unsloth/chandra-ocr-2-GGUF/resolve/main/chandra-ocr-2.mmproj-f16.gguf",
+        "min_bytes": 500_000_000,
     },
 ]
 
