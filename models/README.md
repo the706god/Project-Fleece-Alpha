@@ -15,8 +15,8 @@ Once these files are downloaded to your computer, Fleece Alpha runs completely o
    - Memory Speed: Uses TurboQuant 4-bit memory packing (turbo4/turbo4) to give you 65,536 tokens of working memory. If TurboQuant is not supported on your system, it automatically steps down to standard q8_0 memory so it never crashes.
 
 2. Optical Sieve Specialists (Mimir OCR Pass 3)
-   - Specialist Brain: `chandra-ocr-2.Q6_K.gguf`
-   - Specialist Eyes: `chandra-ocr-2.mmproj-f16.gguf`
+   - Specialist Brain: `Qwen2.5-VL-7B-Instruct-Q4_K_M.gguf`
+   - Specialist Eyes: `Qwen2.5-VL-7B-Instruct-mmproj-F16.gguf`
    - What They Do: These files sleep until you feed Fleece a very blurry scan, messy stamp, or handwritten note that passes 1 and 2 cannot read with high confidence. Once finished, they go right back to sleep so your computer stays fast.
 
 ---
@@ -41,4 +41,4 @@ This script checks whether the models are already on your computer. If they are 
 - KV Cache Mode: turbo4/turbo4 (with automatic q8_0 fallback)
 - Context Window: 65,536 tokens
 - Default Source: Hugging Face (`unsloth/Qwen3.5-4B-GGUF`)
-- OCR Fallback Model: `chandra-ocr-2.Q6_K.gguf` + `chandra-ocr-2.mmproj-f16.gguf`
+- OCR Fallback Model: `Qwen2.5-VL-7B-Instruct-Q4_K_M.gguf` + `Qwen2.5-VL-7B-Instruct-mmproj-F16.gguf`

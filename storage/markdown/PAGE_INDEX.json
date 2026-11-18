@@ -5,8 +5,8 @@
     "file": "knowledge/technical_guidelines.md",
     "level": 1,
     "heading_path": "Technical Guidelines > Technical Architecture Guidelines",
-    "summary": "date: 2026-10-09 tags: architecture, crate-motor, engineering",
-    "tokens": 23
+    "summary": "date: 2026-11-18 tags: architecture, crate-motor, engineering",
+    "tokens": 8
   },
   {
     "id": "knowledge/technical_guidelines.md#crate-motor-design-principles",
@@ -14,8 +14,8 @@
     "file": "knowledge/technical_guidelines.md",
     "level": 2,
     "heading_path": "Technical Guidelines > Technical Architecture Guidelines > Crate Motor Design Principles",
-    "summary": "A crate motor is a drop-in component that requires zero external setup. The engine must be completely self-contained within its repo folder. Hardware detection ...",
-    "tokens": 37
+    "summary": "A crate motor is a drop-in local AI build that requires zero external cloud setup. The engine is completely self-contained within its repository folder, including bundled Native Metal TurboQuant libraries. Hardware detection occurs dynamically across Apple Silicon Metal, CUDA, and CPU fallback.",
+    "tokens": 56
   },
   {
     "id": "knowledge/technical_guidelines.md#ingestion-protocol-specifications",
@@ -23,8 +23,8 @@
     "file": "knowledge/technical_guidelines.md",
     "level": 2,
     "heading_path": "Technical Guidelines > Technical Architecture Guidelines > Ingestion Protocol Specifications",
-    "summary": "The ingestion engine strictly adheres to three unbreakable protocols: 1. Anti-Parsing: Preserves raw markdown tables, syntax trees, and indentation. 2. Anti-Chu...",
-    "tokens": 74
+    "summary": "The ingestion engine strictly adheres to three unbreakable protocols: 1. Anti-Parsing: Preserves raw markdown tables, syntax trees, and indentation verbatim. 2. Anti-Chunking: Never splits code blocks or document sections across arbitrary token slices. 3. Anti-Truncating: Never truncates ingested documents; evicts older conversational turns first to protect document integrity.",
+    "tokens": 64
   },
   {
     "id": "knowledge/technical_guidelines.md#context-budget-limits",
@@ -32,25 +32,7 @@
     "file": "knowledge/technical_guidelines.md",
     "level": 2,
     "heading_path": "Technical Guidelines > Technical Architecture Guidelines > Context Budget Limits",
-    "summary": "The maximum working context is set to 16,384 tokens. When memory usage exceeds 85% of capacity, the engine triggers automated offloading to the secondary markdo...",
-    "tokens": 55
-  },
-  {
-    "id": "knowledge/task_1.md#task_1",
-    "title": "Task_1",
-    "file": "knowledge/task_1.md",
-    "level": 1,
-    "heading_path": "Task 1 > Task_1",
-    "summary": "date: 2026-10-09T19:50:44.417091 tags: task, active_objective  ---  Test Task",
-    "tokens": 41
-  },
-  {
-    "id": "knowledge/active_task.md#active_task",
-    "title": "Active_Task",
-    "file": "knowledge/active_task.md",
-    "level": 1,
-    "heading_path": "Active Task > Active_Task",
-    "summary": "date: 2026-10-09T22:27:05.067607 tags: task, active_objective  ---  System Health",
-    "tokens": 41
+    "summary": "The working context capacity is set to 65,536 tokens via Native Metal TurboQuant (turbo4/turbo4 KV cache, with automatic q8_0 fallback). When memory usage exceeds 85% of capacity, the engine triggers automated offloading of older dialogue turns to the secondary markdown store while preserving protected documents and system anchors.",
+    "tokens": 64
   }
 ]

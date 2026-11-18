@@ -1,19 +1,18 @@
 # Technical Architecture Guidelines
-date: 2026-10-09
+date: 2026-11-18
 tags: architecture, crate-motor, engineering
 
 ## Crate Motor Design Principles
-A crate motor is a drop-in component that requires zero external setup.
-The engine must be completely self-contained within its repo folder.
-Hardware detection must occur dynamically without requiring manual flag tuning.
+A crate motor is a drop-in local AI build that requires zero external cloud setup.
+The engine is completely self-contained within its repository folder, including bundled Native Metal TurboQuant libraries.
+Hardware detection occurs dynamically across Apple Silicon Metal, CUDA, and CPU fallback.
 
 ## Ingestion Protocol Specifications
 The ingestion engine strictly adheres to three unbreakable protocols:
-1. Anti-Parsing: Preserves raw markdown tables, syntax trees, and indentation.
-2. Anti-Chunking: Never splits code blocks or paragraphs across arbitrary token limits.
-3. Anti-Truncating: Never truncates prompts abruptly; utilizes head-and-tail compaction with explicit continuation notices.
+1. Anti-Parsing: Preserves raw markdown tables, syntax trees, and indentation verbatim.
+2. Anti-Chunking: Never splits code blocks or document sections across arbitrary token slices.
+3. Anti-Truncating: Never truncates ingested documents; evicts older conversational turns first to protect document integrity.
 
 ## Context Budget Limits
-The maximum working context is set to 16,384 tokens.
-When memory usage exceeds 85% of capacity, the engine triggers automated offloading to the secondary markdown store.
-Older dialogue turns are condensed into a rolling summary while immutable anchors remain preserved.
+The working context capacity is set to 65,536 tokens via Native Metal TurboQuant (turbo4/turbo4 KV cache, with automatic q8_0 fallback).
+When memory usage exceeds 85% of capacity, the engine triggers automated offloading of older dialogue turns to the secondary markdown store while preserving protected documents and system anchors.
